@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>DEMO — Módulo A · 5 preguntas</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,800;1,300&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+  :root {
+    --mg:#c2185b; --mg2:#e91e8c; --mg-pale:#fce4ec; --mg-mid:#f48fb1;
+    --green:#1b5e20; --green-l:#e8f5e9; --green-m:#43a047;
+    --red:#b71c1c; --red-l:#ffebee;
+    --blue:#0d47a1; --blue-l:#e3f2fd;
+    --orange:#e65100; --orange-l:#fff3e0;
+    --purple:#4a148c; --purple-l:#f3e5f5;
+    --g50:#fafafa; --g100:#f5f5f5; --g200:#eeeeee;
+    --g400:#bdbdbd; --g600:#757575; --g800:#424242; --g900:#212121;
+    --r:14px; --rs:10px; --sh:0 2px 12px rgba(0,0,0,0.08);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  body{font-family:'DM Sans',sans-serif;background:#f0f0f2;color:var(--g900);min-height:100dvh;line-height:1.65;overflow-x:hidden;}
+  .hdr{background:linear-gradient(135deg,#880e4f 0%,#c2185b 55%,#ad1457 100%);color:#fff;padding:10px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 3px 14px rgba(194,24,91,.4);position:sticky;top:0;z-index:200;}
+  .hdr-logo{font-size:1.4rem;flex-shrink:0;}
+  .hdr-text{flex:1;min-width:0;}
+  .hdr h1{font-family:'Fraunces',serif;font-size:.88rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .hdr p{font-size:.62rem;opacity:.75;margin-top:1px;}
+  .hdr-right{flex-shrink:0;text-align:right;}
+  .timer{font-family:'Fraunces',serif;font-size:1.45rem;font-weight:800;font-variant-numeric:tabular-nums;line-height:1;}
+  .timer.warn{color:#ffee58;animation:blink 1.2s ease infinite;}
+  .timer.danger{color:#ff5252;animation:blink .55s ease infinite;}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.45}}
+  .t-lbl{font-size:.56rem;opacity:.65;text-transform:uppercase;letter-spacing:.06em;}
+  .prog-wrap{background:rgba(0,0,0,.25);height:4px;}
+  .prog-bar{height:4px;background:#ffee58;transition:width .5s ease;box-shadow:0 0 8px #ffee58aa;}
+  .main{padding:14px 12px 90px;max-width:600px;margin:0 auto;}
+  .start{background:#fff;border-radius:var(--r);padding:24px 16px;box-shadow:var(--sh);text-align:center;margin-top:14px;}
+  .start .ico{font-size:2.2rem;margin-bottom:10px;}
+  .start h2{font-family:'Fraunces',serif;font-size:1.5rem;color:var(--mg);margin-bottom:5px;}
+  .start .sub{color:var(--g600);font-size:.8rem;margin-bottom:18px;line-height:1.5;}
+  .demo-badge{display:inline-block;background:#fff3e0;color:#e65100;border:2px solid #ff9800;border-radius:20px;padding:6px 16px;font-weight:700;font-size:.82rem;margin-bottom:16px;}
+  .fmt-legend{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:14px 0;}
+  .fmt-pill{padding:4px 11px;border-radius:20px;font-size:.69rem;font-weight:700;border:2px solid;}
+  .fmt-A{border-color:var(--blue);color:var(--blue);background:var(--blue-l);}
+  .fmt-B{border-color:var(--orange);color:var(--orange);background:var(--orange-l);}
+  .fmt-C{border-color:var(--purple);color:var(--purple);background:var(--purple-l);}
+  .fmt-D{border-color:var(--green);color:var(--green);background:var(--green-l);}
+  .info-chips{display:flex;justify-content:center;gap:8px;margin:14px 0 22px;flex-wrap:wrap;}
+  .chip{background:var(--mg-pale);color:var(--mg);border-radius:20px;padding:5px 12px;font-size:.75rem;font-weight:600;display:flex;align-items:center;gap:4px;}
+  .q-card{background:#fff;border-radius:var(--r);padding:16px 13px;box-shadow:var(--sh);margin-top:8px;animation:up .3s ease;}
+  @keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .q-meta{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:11px;gap:6px;}
+  .q-meta-l{display:flex;gap:5px;flex-wrap:wrap;align-items:center;flex:1;}
+  .q-badge{padding:3px 9px;border-radius:20px;font-size:.61rem;font-weight:700;text-transform:uppercase;letter-spacing:.03em;}
+  .b11{background:#f3e5f5;color:#6a1b9a}.b12{background:#e1f5fe;color:#01579b}
+  .b13{background:#e8f5e9;color:#1b5e20}.b21{background:#fff3e0;color:#bf360c}
+  .b22{background:var(--mg-pale);color:var(--mg)}
+  .fmt-badge{padding:3px 9px;border-radius:12px;font-size:.61rem;font-weight:700;border:1.5px solid;white-space:nowrap;}
+  .q-num{font-size:.68rem;color:var(--g600);font-weight:500;flex-shrink:0;white-space:nowrap;}
+  .passage{background:var(--g50);border-left:4px solid var(--mg);border-radius:0 var(--rs) var(--rs) 0;padding:11px 12px;margin:10px 0;font-size:.82rem;line-height:1.7;color:var(--g800);}
+  .p-lbl{font-size:.61rem;font-weight:700;color:var(--mg);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;}
+  .q-text{font-weight:600;font-size:.88rem;margin-bottom:13px;color:var(--g900);line-height:1.5;}
+  .opts{display:flex;flex-direction:column;gap:9px;}
+  .opt{padding:13px 12px;border:2px solid var(--g200);border-radius:var(--rs);cursor:pointer;display:flex;align-items:flex-start;gap:10px;transition:border-color .13s,background .13s;font-size:.84rem;line-height:1.5;min-height:48px;}
+  .opt:active:not(.locked){border-color:var(--mg-mid);background:#fff5f8;}
+  .opt.sel{border-color:var(--mg);background:#fff0f6;}
+  .opt.ok{border-color:var(--green-m);background:var(--green-l);}
+  .opt.bad{border-color:#e53935;background:var(--red-l);}
+  .opt.locked{cursor:default;}
+  .opt-lt{min-width:26px;height:26px;border-radius:50%;background:var(--g200);display:flex;align-items:center;justify-content:center;font-size:.74rem;font-weight:700;flex-shrink:0;transition:background .13s,color .13s;}
+  .opt.sel .opt-lt{background:var(--mg);color:#fff;}
+  .opt.ok  .opt-lt{background:var(--green-m);color:#fff;}
+  .opt.bad .opt-lt{background:#e53935;color:#fff;}
+  .res-ico{margin-left:auto;flex-shrink:0;font-size:.95rem;}
+  .order-wrap{display:flex;flex-direction:column;gap:8px;margin:4px 0;}
+  .order-item{padding:11px 11px;border:2px solid var(--g200);border-radius:var(--rs);display:flex;align-items:center;gap:9px;font-size:.83rem;background:#fff;transition:border-color .13s,background .13s;user-select:none;}
+  .order-num{min-width:26px;height:26px;border-radius:50%;background:var(--g200);display:flex;align-items:center;justify-content:center;font-size:.73rem;font-weight:700;flex-shrink:0;}
+  .order-text{flex:1;line-height:1.4;}
+  .order-arrows{display:flex;flex-direction:column;gap:3px;flex-shrink:0;}
+  .arrow-btn{width:30px;height:28px;border:1.5px solid var(--g200);border-radius:6px;background:var(--g50);color:var(--g600);font-size:.82rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s;}
+  .arrow-btn:active:not([disabled]){background:var(--mg);border-color:var(--mg);color:#fff;transform:scale(.92);}
+  .arrow-btn[disabled]{opacity:.22;cursor:default;}
+  .order-ok .order-item{border-color:var(--green-m);background:var(--green-l);}
+  .order-ok .order-num{background:var(--green-m);color:#fff;}
+  .order-bad .order-item{border-color:#e53935;background:var(--red-l);}
+  .match-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0;}
+  .match-col h5{font-size:.63rem;text-transform:uppercase;letter-spacing:.06em;color:var(--g600);font-weight:700;margin-bottom:7px;}
+  .match-left-item,.match-right-item{padding:10px 9px;border-radius:var(--rs);font-size:.79rem;border:2px solid var(--g200);background:#fff;margin-bottom:6px;cursor:pointer;transition:border-color .12s,background .12s;line-height:1.4;min-height:44px;display:flex;align-items:center;}
+  .match-left-item.active{border-color:var(--mg);background:var(--mg-pale);}
+  .match-right-item.matched{border-color:var(--blue);background:var(--blue-l);}
+  .match-pair-display{margin-top:10px;}
+  .match-pair{display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:6px;margin-bottom:5px;font-size:.78rem;background:var(--g50);border:1.5px solid var(--g200);flex-wrap:wrap;}
+  .match-pair.ok{background:var(--green-l);border-color:var(--green-m);}
+  .match-pair.bad{background:var(--red-l);border-color:#e53935;}
+  .match-arrow{color:var(--g400);}
+  .expl{display:none;margin-top:13px;padding:11px 12px;background:var(--blue-l);border-radius:var(--rs);border-left:4px solid var(--blue);font-size:.8rem;line-height:1.6;color:var(--g800);}
+  .expl.show{display:block;}
+  .expl strong{color:var(--blue);}
+  .confirm-wrap{text-align:center;margin-top:13px;}
+  .dots{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:10px;}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--g200);transition:background .2s;flex-shrink:0;}
+  .dot.done{background:var(--mg);}
+  .dot.cur{background:var(--mg2);box-shadow:0 0 0 3px var(--mg-pale);}
+  .dot.hit{background:var(--green-m);}
+  .dot.miss{background:#e53935;}
+  .sec-hint{font-size:.66rem;color:var(--g600);text-align:center;padding:6px;background:var(--g50);border-radius:6px;margin-bottom:9px;}
+  .btn{padding:11px 18px;border-radius:var(--rs);border:none;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.84rem;cursor:pointer;transition:all .14s;min-height:44px;}
+  .btn:active{transform:scale(.96);}
+  .btn-p{background:var(--mg);color:#fff;box-shadow:0 2px 8px rgba(194,24,91,.28);}
+  .btn-p:active{background:#ad1457;}
+  .btn-s{background:var(--g200);color:var(--g800);}
+  .btn-s:active{background:var(--g400);}
+  .btn-lg{padding:14px 28px;font-size:.92rem;border-radius:12px;width:100%;}
+  .btn-sm{padding:9px 15px;font-size:.81rem;min-height:40px;}
+  .nav{position:fixed;bottom:0;left:0;right:0;background:#fff;padding:8px 14px;padding-bottom:max(8px,env(safe-area-inset-bottom));display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--g200);box-shadow:0 -4px 14px rgba(0,0,0,.07);z-index:200;gap:8px;}
+  .nav-inf{font-size:.77rem;color:var(--g600);font-weight:500;line-height:1.4;}
+  .nav-sc{font-size:.72rem;color:var(--g600);}
+  .nav-sc span{font-weight:700;color:var(--mg);}
+  .nav-btns{display:flex;gap:7px;flex-shrink:0;}
+  .res-screen{background:#fff;border-radius:var(--r);padding:26px 16px;box-shadow:var(--sh);text-align:center;margin-top:14px;}
+  .score-ring{width:108px;height:108px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-family:'Fraunces',serif;font-size:1.85rem;color:#fff;box-shadow:0 8px 28px rgba(0,0,0,.15);}
+  .res-screen h2{font-family:'Fraunces',serif;font-size:1.4rem;margin-bottom:5px;}
+  .res-big{font-size:.88rem;color:var(--g600);margin-bottom:16px;}
+  .brkdn{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:14px 0;text-align:left;}
+  .bk-item{padding:10px 11px;border-radius:var(--rs);border:1.5px solid var(--g200);}
+  .bk-lbl{font-size:.62rem;text-transform:uppercase;letter-spacing:.05em;font-weight:700;margin-bottom:3px;}
+  .bk-sc{font-size:.9rem;font-weight:700;}
+  .bk-bar{height:4px;background:var(--g200);border-radius:2px;margin-top:5px;}
+  .bk-fill{height:4px;border-radius:2px;transition:width 1.2s ease;}
+  .hidden{display:none!important;}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="hdr-logo">📋</div>
+  <div class="hdr-text">
+    <h1>Módulo A · DEMO <span style="font-size:.75em;opacity:.75">· 5 preguntas</span></h1>
+    <p>Comprensión lectora · Redacción indirecta · 4 formatos</p>
+  </div>
+  <div class="hdr-right">
+    <div class="t-lbl">Tiempo</div>
+    <div class="timer" id="timer">10:00</div>
+  </div>
+</div>
+<div class="prog-wrap"><div class="prog-bar" id="progBar" style="width:0%"></div></div>
+<div class="main">
+  <div class="start" id="startScreen">
+    <div class="ico">📋</div>
+    <h2>Módulo A – SPEN INE</h2>
+    <p class="sub">Comprensión lectora · Redacción indirecta · 4 formatos de reactivo</p>
+    <div class="demo-badge">🎯 DEMO · 5 preguntas de muestra</div>
+    <div class="fmt-legend">
+      <div class="fmt-pill fmt-A">A · Cuestionamiento directo</div>
+      <div class="fmt-pill fmt-B">B · Completamiento</div>
+      <div class="fmt-pill fmt-C">C · Ordenamiento</div>
+      <div class="fmt-pill fmt-D">D · Relación de elementos</div>
+    </div>
+    <div class="info-chips">
+      <div class="chip">📝 <strong>5</strong> preguntas</div>
+      <div class="chip">⏱️ <strong>10</strong> min</div>
+      <div class="chip">🎯 <strong>4</strong> formatos</div>
+    </div>
+    <button class="btn btn-p btn-lg" onclick="startExam()">Iniciar demo →</button>
+  </div>
+  <div id="examScreen" class="hidden"></div>
+  <div id="resultsScreen" class="hidden"></div>
+</div>
+<div class="nav hidden" id="navBar">
+  <div>
+    <div class="nav-inf">Pregunta <strong id="navCur">1</strong> de <strong>5</strong></div>
+    <div class="nav-sc">Aciertos: <span id="navSc">0</span></div>
+  </div>
+  <div class="nav-btns">
+    <button class="btn btn-s btn-sm" onclick="prevQ()">← Ant.</button>
+    <button class="btn btn-p btn-sm" id="btnNext" onclick="nextQ()">Sig. →</button>
+  </div>
+</div>
+<script>
+const Q = [
+{id:1,sub:"1.1",label:"Comprensión · Ámbito de estudio",fmt:"A",
+ pTitle:"La Objetividad en la Ciencia",
+ passage:"La objetividad científica no implica que el investigador carezca de valores o perspectivas previas, sino que tiene la obligación de transparentar sus supuestos y someter sus conclusiones al escrutinio de la comunidad. La revisión por pares es, en ese sentido, el mecanismo institucional que compensa la subjetividad inevitable de cualquier investigador individual.",
+ q:"Según el fragmento, ¿cuál es la función de la revisión por pares en la ciencia?",
+ opts:["Eliminar completamente los valores personales del investigador.","Compensar la subjetividad individual mediante el escrutinio colectivo.","Garantizar que todas las conclusiones publicadas sean verdaderas."],
+ correct:1,expl:"El texto no afirma que la objetividad elimine la subjetividad, sino que la revisión por pares la 'compensa' institucionalmente."},
+{id:2,sub:"1.1",label:"Comprensión · Ámbito de estudio",fmt:"B",
+ pTitle:"Validez y Confiabilidad",
+ passage:"En investigación empírica, un instrumento es confiable si produce resultados consistentes al repetirse bajo las mismas condiciones. Sin embargo, la confiabilidad no garantiza la validez: un termómetro descalibrado mide con consistencia, pero no mide correctamente la temperatura.",
+ q:"Según el texto, la confiabilidad sin validez implica que un instrumento mide de forma ________ pero no mide el constructo correcto.",
+ opts:["aleatoria e impredecible","consistente y reproducible","precisa y válida"],
+ correct:1,expl:"La confiabilidad se refiere a la consistencia; el ejemplo del termómetro descalibrado ilustra que puede ser consistente pero equivocado."},
+{id:3,sub:"1.3",label:"Comprensión · Participación social",fmt:"A",
+ pTitle:"Agenda Setting y Opinión Pública",
+ passage:"La teoría del establecimiento de agenda (agenda setting) plantea que los medios de comunicación no determinan qué piensa la gente, pero sí sobre qué piensa: los temas que reciben mayor cobertura son los que el público percibe como más importantes. Este poder de selección temática convierte a los medios en actores políticos aunque actúen como meros informadores.",
+ q:"¿Cuál es la distinción central que establece la teoría del agenda setting?",
+ opts:["Los medios determinan directamente las opiniones políticas de los ciudadanos.","Los medios no dictan las opiniones, pero sí definen qué temas se consideran relevantes.","Los medios son políticamente neutrales cuando se limitan a informar hechos."],
+ correct:1,expl:"El texto distingue 'qué piensa la gente' (opiniones) de 'sobre qué piensa' (temas); el poder mediático actúa en este segundo nivel."},
+{id:4,sub:"2.1",label:"Redacción · Ámbito de estudio",fmt:"C",
+ pTitle:"Proceso de Publicación Académica",
+ passage:"El ciclo de producción del conocimiento científico culmina en la publicación, que a su vez retroalimenta nuevas investigaciones. Entre la producción y la difusión existen varios filtros de calidad.",
+ q:"Ordena las etapas del proceso de publicación académica de la primera a la última.",
+ items:["Revisión por pares (evaluación ciega)","Envío del manuscrito a una revista","Publicación y difusión del artículo","Revisión y corrección de pruebas por el autor"],
+ correctOrder:[1,0,3,2],
+ expl:"El orden es: Envío del manuscrito → Revisión por pares → Corrección de pruebas → Publicación."},
+{id:5,sub:"2.2",label:"Redacción · Participación social",fmt:"D",
+ pTitle:"Propósito de los Documentos de Difusión Ciudadana",
+ passage:"Las instituciones producen distintos documentos para comunicarse con la ciudadanía según el tipo de acción que buscan promover o informar.",
+ q:"Relaciona cada documento con su propósito comunicativo principal.",
+ leftItems:["Convocatoria","Boletín informativo","Reglamento interno publicado"],
+ rightItems:["Establecer normas obligatorias para la conducta en un ámbito específico","Convocar a la ciudadanía a participar en un proceso con requisitos y fechas","Difundir noticias, logros o actividades de la institución"],
+ correctPairs:[[0,1],[1,2],[2,0]],
+ expl:"Convocatoria = invita a participar con condiciones; Boletín = difunde noticias institucionales; Reglamento = establece normas obligatorias."}
+];
+const TOTAL=Q.length;
+const TIME_LIMIT=10*60;
+let answers=new Array(TOTAL).fill(null),revealed=new Array(TOTAL).fill(false);
+let orderStates=new Array(TOTAL).fill(null),matchStates=new Array(TOTAL).fill(null);
+let current=0,secondsLeft=TIME_LIMIT,timerInterval;
+const BADGE={"1.1":"b11","1.2":"b12","1.3":"b13","2.1":"b21","2.2":"b22"};
+const FMT_LABELS={"A":"A · Cuestionamiento directo","B":"B · Completamiento","C":"C · Ordenamiento","D":"D · Relación de elementos"};
+const FMT_COLORS={"A":"fmt-A","B":"fmt-B","C":"fmt-C","D":"fmt-D"};
+const SECTIONS={"1.1":"📖 Comprensión lectora · Ámbito de estudio","1.2":"📚 Comprensión lectora · Ámbito literario","1.3":"🗞️ Comprensión lectora · Participación social","2.1":"✏️ Redacción indirecta · Ámbito de estudio","2.2":"📋 Redacción indirecta · Participación social"};
+function startExam(){
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('examScreen').classList.remove('hidden');
+  document.getElementById('navBar').classList.remove('hidden');
+  renderQ(0);startTimer();
+}
+function renderQ(idx){
+  current=idx;const q=Q[idx],isRev=revealed[idx];
+  const hits=answers.filter((a,i)=>a!==null&&revealed[i]&&checkAnswer(i)).length;
+  const dots=Q.map((_,i)=>{
+    let c='dot';
+    if(i===idx)c+=' cur';
+    else if(revealed[i])c+=checkAnswer(i)?' hit':' miss';
+    else if(answers[i]!==null||orderStates[i]!==null||matchStates[i]!==null)c+=' done';
+    return`<div class="${c}"></div>`;
+  }).join('');
+  let contentHTML='';
+  if(q.fmt==='A'||q.fmt==='B')contentHTML=renderAB(q,idx,isRev);
+  else if(q.fmt==='C')contentHTML=renderC(q,idx,isRev);
+  else if(q.fmt==='D')contentHTML=renderD(q,idx,isRev);
+  const hasAnswer=answers[idx]!==null||orderStates[idx]!==null||matchStates[idx]!==null;
+  document.getElementById('examScreen').innerHTML=`
+    <div class="dots">${dots}</div>
+    <div class="sec-hint">${SECTIONS[q.sub]}</div>
+    <div class="q-card">
+      <div class="q-meta">
+        <div class="q-meta-l">
+          <span class="q-badge ${BADGE[q.sub]}">${q.label}</span>
+          <span class="fmt-badge ${FMT_COLORS[q.fmt]}">${FMT_LABELS[q.fmt]}</span>
+        </div>
+        <span class="q-num">P${idx+1}/${TOTAL}</span>
+      </div>
+      <div class="passage"><div class="p-lbl">📄 ${q.pTitle}</div>${q.passage}</div>
+      <div class="q-text">${q.q}</div>
+      ${contentHTML}
+      <div class="expl ${isRev?'show':''}"><strong>💡 Explicación:</strong> ${q.expl}</div>
+      ${!isRev&&hasAnswer?`<div class="confirm-wrap"><button class="btn btn-s btn-sm" onclick="revealAnswer()">Confirmar y ver respuesta</button></div>`:''}
+    </div>`;
+  document.getElementById('navCur').textContent=idx+1;
+  document.getElementById('navSc').textContent=hits;
+  document.getElementById('progBar').style.width=((idx+1)/TOTAL*100)+'%';
+  document.getElementById('btnNext').textContent=idx===TOTAL-1?'🏁 Finalizar':'Sig. →';
+  window.scrollTo({top:0,behavior:'instant'});
+}
+function renderAB(q,idx,isRev){
+  const sel=answers[idx];
+  return`<div class="opts">${q.opts.map((opt,i)=>{
+    let cls='opt';
+    if(isRev){cls+=' locked';if(i===q.correct)cls+=' ok';else if(i===sel)cls+=' bad';}
+    else if(i===sel)cls+=' sel';
+    const ico=isRev?(i===q.correct?'<span class="res-ico">✅</span>':(i===sel?'<span class="res-ico">❌</span>':'')):'';
+    return`<div class="${cls}" onclick="selectOpt(${i})"><div class="opt-lt">${String.fromCharCode(65+i)}</div><div style="flex:1">${opt}</div>${ico}</div>`;
+  }).join('')}</div>`;
+}
+function selectOpt(i){if(revealed[current])return;answers[current]=i;renderQ(current);}
+function renderC(q,idx,isRev){
+  const state=orderStates[idx]||[...Array(q.items.length).keys()];
+  const isOk=isRev&&checkAnswer(idx);const n=state.length;
+  return`<div class="order-wrap ${isRev?(isOk?'order-ok':'order-bad'):''}" id="orderList">
+    ${state.map((origIdx,pos)=>`
+      <div class="order-item" data-pos="${pos}" data-orig="${origIdx}">
+        <span style="font-size:.9rem;flex-shrink:0">${isRev?(isOk?'✅':'❌'):'⠿'}</span>
+        <div class="order-num">${pos+1}</div>
+        <div class="order-text">${q.items[origIdx]}</div>
+        ${!isRev?`<div class="order-arrows">
+          <button class="arrow-btn" onclick="moveOrder(${idx},${pos},-1)" ${pos===0?'disabled':''}>↑</button>
+          <button class="arrow-btn" onclick="moveOrder(${idx},${pos},1)" ${pos===n-1?'disabled':''}>↓</button>
+        </div>`:''}
+      </div>`).join('')}
+  </div>`;
+}
+function moveOrder(idx,pos,dir){
+  const state=orderStates[idx]||[...Array(Q[idx].items.length).keys()];
+  const s=[...state];const np=pos+dir;
+  if(np<0||np>=s.length)return;
+  [s[pos],s[np]]=[s[np],s[pos]];
+  orderStates[idx]=s;answers[idx]=s;renderQ(current);
+}
+function renderD(q,idx,isRev){
+  if(isRev){
+    const pairs=matchStates[idx]||[];const isOk=checkAnswer(idx);
+    return`<div class="match-pair-display">
+      ${q.leftItems.map((left,i)=>{
+        const myPair=pairs.find(p=>p[0]===i);
+        const rightIdx=myPair?myPair[1]:null;
+        const correctRight=q.correctPairs[i][1];
+        const pairOk=rightIdx===correctRight;
+        return`<div class="match-pair ${pairOk?'ok':'bad'}">
+          <span>${left}</span><span class="match-arrow">→</span>
+          <span>${rightIdx!==null?q.rightItems[rightIdx]:'(sin respuesta)'}</span>
+          <span style="margin-left:auto">${pairOk?'✅':'❌'}</span>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }
+  const pairs=matchStates[idx]||[];
+  const activeLeft=window._activeLeft!==undefined?window._activeLeft:null;
+  const matchedRights=pairs.map(p=>p[1]);
+  return`<div class="match-grid">
+    <div class="match-col"><h5>Columna A</h5>
+      ${q.leftItems.map((item,i)=>{
+        const paired=pairs.find(p=>p[0]===i);
+        return`<div class="match-left-item ${activeLeft===i?'active':''}" onclick="selectLeft(${i})" style="${paired?'opacity:0.6;border-style:dashed':''}">${item}${paired?` → <em style="color:#01579b;font-size:.8em">${q.rightItems[paired[1]]}</em>`:''}</div>`;
+      }).join('')}
+    </div>
+    <div class="match-col"><h5>Columna B</h5>
+      ${q.rightItems.map((item,i)=>{
+        const isMatched=matchedRights.includes(i);
+        return`<div class="match-right-item ${isMatched?'matched':''}" onclick="selectRight(${i})" style="${isMatched?'opacity:0.6;cursor:default':''}">${item}</div>`;
+      }).join('')}
+    </div>
+  </div>
+  ${pairs.length>0?`<button class="btn btn-s" style="margin-top:8px;font-size:.78rem" onclick="resetMatch(${idx})">↩ Reiniciar pares</button>`:''}`;
+}
+function selectLeft(i){if(revealed[current])return;window._activeLeft=i;renderQ(current);}
+function selectRight(j){
+  if(revealed[current])return;const i=window._activeLeft;
+  if(i===undefined||i===null)return;
+  const q=Q[current];const pairs=matchStates[current]||[];
+  const newPairs=pairs.filter(p=>p[0]!==i&&p[1]!==j);newPairs.push([i,j]);
+  matchStates[current]=newPairs;answers[current]=newPairs;window._activeLeft=null;renderQ(current);
+}
+function resetMatch(idx){matchStates[idx]=[];answers[idx]=null;window._activeLeft=null;renderQ(current);}
+function checkAnswer(idx){
+  const q=Q[idx];
+  if(q.fmt==='A'||q.fmt==='B')return answers[idx]===q.correct;
+  if(q.fmt==='C'){const state=orderStates[idx];if(!state)return false;return q.correctOrder.every((v,i)=>state[i]===v);}
+  if(q.fmt==='D'){const pairs=matchStates[idx];if(!pairs||pairs.length<q.leftItems.length)return false;return q.correctPairs.every(([l,r])=>pairs.some(p=>p[0]===l&&p[1]===r));}
+  return false;
+}
+function revealAnswer(){revealed[current]=true;window._activeLeft=null;renderQ(current);}
+function nextQ(){if(current<TOTAL-1){window._activeLeft=null;renderQ(current+1);}else showResults();}
+function prevQ(){if(current>0){window._activeLeft=null;renderQ(current-1);}}
+function startTimer(){
+  timerInterval=setInterval(()=>{
+    secondsLeft--;
+    const m=Math.floor(secondsLeft/60),s=secondsLeft%60;
+    const el=document.getElementById('timer');
+    el.textContent=`${m}:${s<10?'0'+s:s}`;
+    el.className='timer'+(secondsLeft<=60?' danger':secondsLeft<=180?' warn':'');
+    if(secondsLeft<=0)showResults();
+  },1000);
+}
+function showResults(){
+  clearInterval(timerInterval);
+  const total=TOTAL,correct=Q.filter((_,i)=>checkAnswer(i)).length,pct=Math.round(correct/total*100),pass=pct>=70;
+  document.getElementById('examScreen').classList.add('hidden');
+  document.getElementById('navBar').classList.add('hidden');
+  document.getElementById('resultsScreen').classList.remove('hidden');
+  document.getElementById('resultsScreen').innerHTML=`
+    <div class="res-screen">
+      <div class="score-ring" style="background:${pass?'linear-gradient(135deg,#1b5e20,#43a047)':'linear-gradient(135deg,#b71c1c,#e53935)'}">
+        ${pct}%
+      </div>
+      <h2>${pass?'¡Buen resultado! 🎉':'Sigue practicando 💪'}</h2>
+      <p class="res-big"><strong>${correct}</strong> aciertos de <strong>${total}</strong> preguntas</p>
+      <p style="font-size:.78rem;color:#757575;margin:10px 0 20px;line-height:1.5">
+        ${pass?'¡Superaste el 70%! El simulacro completo tiene 60 preguntas.':'No alcanzaste el 70%. El simulacro completo te ayudará a reforzar.'}
+      </p>
+      <button class="btn btn-p btn-lg" onclick="location.reload()">🔁 Repetir demo</button>
+    </div>`;
+  window.scrollTo({top:0,behavior:'instant'});
+}
+</script>
+</body>
+</html>

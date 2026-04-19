@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>DEMO — Módulo C · 5 preguntas</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Segoe UI',sans-serif;background:#f5f0ff;color:#222;min-height:100dvh;overflow-x:hidden;}
+.header{background:linear-gradient(135deg,#6a1b9a,#ab47bc);color:white;padding:10px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,.2);position:sticky;top:0;z-index:200;}
+.header-logo{font-size:1.35rem;flex-shrink:0;}
+.header-text{flex:1;min-width:0;}
+.header h1{font-size:.88rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.header p{font-size:.62rem;opacity:.82;margin-top:1px;}
+.header-right{flex-shrink:0;text-align:right;}
+.timer{font-size:1.45rem;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:.5px;line-height:1;}
+.t-lbl{font-size:.55rem;opacity:.65;margin-top:1px;}
+.timer.warning{color:#ffe082;}
+.timer.danger{color:#ff6b6b;animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+.progress-wrap{background:#e1bee7;height:3px;}
+.progress-bar{height:3px;background:#fff;transition:width .4s;}
+.main{padding:12px 12px 80px;max-width:600px;margin:0 auto;}
+.start-screen{background:white;border-radius:14px;padding:22px 16px;box-shadow:0 2px 12px rgba(0,0,0,.08);margin-top:14px;text-align:center;}
+.start-screen h2{font-size:1.3rem;color:#6a1b9a;margin-bottom:10px;}
+.info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:16px 0;}
+.info-card{background:#f3e5f5;border-radius:10px;padding:11px 8px;}
+.info-card .num{font-size:1.5rem;font-weight:800;color:#6a1b9a;}
+.info-card .lbl{font-size:.72rem;color:#666;margin-top:2px;}
+.topic-section{text-align:left;margin:14px 0;}
+.topic-section-title{font-size:.72rem;font-weight:800;color:#6a1b9a;text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;padding-left:3px;}
+.topic-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;}
+.topic-pill{background:#f3e5f5;border-radius:7px;padding:6px 10px;font-size:.76rem;color:#6a1b9a;display:flex;justify-content:space-between;}
+.topic-pill .cnt{font-weight:800;}
+.biblio-note{font-size:.68rem;color:#888;background:#f9f5ff;border-radius:8px;padding:9px 11px;margin:10px 0 13px;text-align:left;line-height:1.6;border-left:3px solid #ab47bc;}
+.biblio-note strong{color:#6a1b9a;}
+.demo-badge{display:inline-block;background:#fff3e0;color:#e65100;border:2px solid #ff9800;border-radius:20px;padding:6px 16px;font-weight:700;font-size:.82rem;margin:10px 0 16px;}
+.question-card{background:white;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.07);overflow:hidden;margin-bottom:12px;}
+.q-header{background:#6a1b9a;color:white;padding:10px 14px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.q-num-label{font-size:.8rem;font-weight:700;letter-spacing:.3px;}
+.q-area-badge{font-size:.65rem;font-weight:700;padding:4px 9px;border-radius:20px;background:rgba(255,255,255,.22);text-transform:uppercase;white-space:nowrap;flex-shrink:0;}
+.q-body{padding:14px 13px;}
+.passage{background:#f5f0ff;border-left:4px solid #ab47bc;padding:11px 12px;border-radius:0 8px 8px 0;margin-bottom:12px;font-size:.83rem;line-height:1.7;}
+.passage-label{font-size:.65rem;font-weight:700;color:#6a1b9a;text-transform:uppercase;margin-bottom:5px;}
+.question-text{font-size:.9rem;font-weight:600;line-height:1.55;margin-bottom:14px;color:#1a1a2e;border-bottom:1px dashed #e0e0e0;padding-bottom:13px;}
+.options{display:flex;flex-direction:column;gap:0;border:1.5px solid #e0e0e0;border-radius:10px;overflow:hidden;}
+.option{display:flex;align-items:stretch;cursor:pointer;transition:background .13s;font-size:.86rem;line-height:1.45;border-bottom:1px solid #e8e8e8;min-height:52px;}
+.option:last-child{border-bottom:none;}
+.option:active:not(.disabled){background:#f3e5f533;}
+.option.selected{background:#f3e5f5;}
+.option.correct{background:#e8f5e9;}
+.option.incorrect{background:#ffebee;}
+.option.disabled{cursor:default;}
+.opt-letter-col{width:46px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-right:1.5px solid #e0e0e0;background:#fafafa;}
+.option.selected .opt-letter-col{background:#ab47bc;border-right-color:#6a1b9a;}
+.option.correct  .opt-letter-col{background:#4caf50;border-right-color:#388e3c;}
+.option.incorrect .opt-letter-col{background:#f44336;border-right-color:#c62828;}
+.opt-letter{width:26px;height:26px;border-radius:50%;border:2px solid #bbb;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.78rem;color:#555;background:white;}
+.option.selected .opt-letter{border-color:white;color:#ab47bc;}
+.option.correct  .opt-letter{border-color:white;color:#4caf50;}
+.option.incorrect .opt-letter{border-color:white;color:#f44336;}
+.opt-text{flex:1;padding:13px 12px;color:#333;display:flex;align-items:center;}
+.option.selected .opt-text{color:#6a1b9a;font-weight:600;}
+.option.correct  .opt-text{color:#2e7d32;font-weight:600;}
+.option.incorrect .opt-text{color:#b71c1c;}
+.opt-result-icon{padding:13px 12px 13px 0;font-size:1rem;display:flex;align-items:center;flex-shrink:0;}
+.biblio-ref{font-size:.62rem;color:#bbb;margin-top:12px;font-style:italic;padding-top:9px;border-top:1px dashed #f0e6ff;}
+.explanation{padding:12px 14px;background:#f5f0ff;border-top:2px solid #ab47bc;font-size:.82rem;line-height:1.65;display:none;}
+.explanation.show{display:block;}
+.explanation strong{color:#6a1b9a;}
+.ver-sol-wrap{text-align:center;margin-bottom:10px;}
+.btn-ver-sol{background:white;border:2px solid #ab47bc;color:#6a1b9a;padding:9px 20px;border-radius:9px;font-weight:700;font-size:.83rem;cursor:pointer;transition:all .15s;min-height:44px;}
+.btn-ver-sol:active{background:#f3e5f5;}
+.btn{padding:10px 18px;border-radius:10px;border:none;font-size:.85rem;font-weight:700;cursor:pointer;transition:all .15s;min-height:44px;}
+.btn:active{transform:scale(.96);}
+.btn-primary{background:linear-gradient(135deg,#6a1b9a,#ab47bc);color:white;}
+.btn-secondary{background:#f0f0f0;color:#555;}
+.btn-lg{padding:13px 26px;font-size:.93rem;border-radius:12px;}
+.btn-sm{padding:9px 15px;font-size:.8rem;min-height:40px;}
+.nav-bar{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #e0e0e0;padding:8px 14px;padding-bottom:max(8px,env(safe-area-inset-bottom));display:flex;justify-content:space-between;align-items:center;gap:8px;box-shadow:0 -2px 10px rgba(0,0,0,.07);z-index:200;}
+.nav-info{font-size:.77rem;color:#888;line-height:1.4;}
+.nav-info span{color:#6a1b9a;font-weight:700;}
+.nav-btns{display:flex;gap:7px;flex-shrink:0;}
+.results-screen{background:white;border-radius:14px;padding:24px 16px;box-shadow:0 2px 12px rgba(0,0,0,.08);margin-top:14px;text-align:center;}
+.score-circle{width:108px;height:108px;border-radius:50%;margin:0 auto 16px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:1.85rem;font-weight:900;color:white;}
+.score-sub{font-size:.68rem;font-weight:500;opacity:.85;}
+.score-good{background:linear-gradient(135deg,#43a047,#66bb6a);}
+.score-mid{background:linear-gradient(135deg,#f57c00,#ffa726);}
+.score-low{background:linear-gradient(135deg,#c62828,#ef5350);}
+.hidden{display:none!important;}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-logo">🗳️</div>
+  <div class="header-text">
+    <h1>Módulo C — Cívico-Electoral · DEMO</h1>
+    <p>Conocimiento cívico-electoral · 5 preguntas de muestra</p>
+  </div>
+  <div class="header-right">
+    <div class="timer" id="timer">10:00</div>
+    <div class="t-lbl">tiempo restante</div>
+  </div>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+<div class="main">
+  <div class="start-screen" id="startScreen">
+    <h2>🗳️ Módulo C — Conocimiento cívico-electoral</h2>
+    <p style="background:#f3e5f5;border-radius:10px;padding:10px;color:#6a1b9a;font-weight:600;margin-bottom:10px;font-size:.82rem">🎯 Modo diagnóstico — Al terminar verás qué temas dominas y cuáles reforzar.</p>
+    <div class="demo-badge">🎯 DEMO · 5 preguntas de muestra</div>
+    <div class="info-grid">
+      <div class="info-card"><div class="num">5</div><div class="lbl">Preguntas</div></div>
+      <div class="info-card"><div class="num">10</div><div class="lbl">Minutos</div></div>
+      <div class="info-card"><div class="num">3</div><div class="lbl">Áreas</div></div>
+    </div>
+    <div class="topic-section">
+      <div class="topic-section-title">📜 1. Sistema Político Mexicano</div>
+      <div class="topic-grid">
+        <div class="topic-pill"><span>Modelo constitucional</span><span class="cnt">2</span></div>
+        <div class="topic-pill"><span>Ciudadanía</span><span class="cnt">1</span></div>
+      </div>
+      <div class="topic-section-title">🗳️ 2. Sistema Electoral</div>
+      <div class="topic-grid">
+        <div class="topic-pill"><span>Proceso electoral federal</span><span class="cnt">1</span></div>
+      </div>
+      <div class="topic-section-title">🏢 3. Instituto Nacional Electoral</div>
+      <div class="topic-grid">
+        <div class="topic-pill"><span>Órganos del INE</span><span class="cnt">1</span></div>
+      </div>
+    </div>
+    <div class="biblio-note">📚 <strong>Fuentes:</strong> CPEUM (2025) · LGIPE (2024) · Estatuto SPEN (2024)</div>
+    <button class="btn btn-primary btn-lg" style="width:100%" onclick="startExam()">Iniciar demo →</button>
+  </div>
+  <div id="examScreen" class="hidden"></div>
+  <div id="resultsScreen" class="hidden"></div>
+</div>
+<div class="nav-bar hidden" id="navBar">
+  <div class="nav-info">Preg. <span id="navCurrent">1</span> de <span id="navTotal">5</span></div>
+  <div class="nav-btns">
+    <button class="btn btn-secondary btn-sm" id="btnPrev" onclick="prevQ()">← Ant.</button>
+    <button class="btn btn-primary  btn-sm" id="btnNext" onclick="nextQ()">Sig. →</button>
+  </div>
+</div>
+<script>
+const QBANK=[
+  {sa:"1.1",sal:"Modelo constitucional",
+   ref:"CPEUM (2025), Arts. 39 y 40",
+   p:"El Art. 39 CPEUM establece que la soberanía nacional reside esencial y originariamente en el pueblo. El Art. 40 define la forma de gobierno.",pt:"Soberanía y forma de gobierno",
+   q:"¿Cuál es la distinción jurídica entre los Arts. 39 y 40 de la CPEUM en relación con la soberanía y la forma de gobierno?",
+   o:["El Art. 39 reconoce la soberanía popular como fuente del poder público, mientras el Art. 40 establece la forma republicana, democrática, laica y federal en que ese poder se organiza.",
+      "Ambos artículos establecen lo mismo: que el pueblo ejerce su soberanía directamente sin intermediarios.",
+      "El Art. 39 aplica solo a las entidades federativas y el Art. 40 al gobierno federal."],
+   c:0,ex:"El Art. 39 CPEUM consagra la soberanía originaria del pueblo (fuente del poder); el Art. 40 define la forma institucional: República representativa, democrática, laica y federal."},
+  {sa:"1.1",sal:"Modelo constitucional",
+   ref:"CPEUM (2025), Arts. 52 y 56",
+   p:"La Cámara de Diputados se integra por 500 diputados: 300 de mayoría relativa y 200 por representación proporcional. El Senado por 128 senadores.",pt:"Integración del Congreso",
+   q:"Si el Congreso de la Unión se reúne en sesión conjunta (Congreso General), ¿cuántos legisladores lo integran en total?",
+   o:["500 legisladores","628 legisladores","432 legisladores"],
+   c:1,ex:"Congreso General = Cámara de Diputados (500) + Senado (128) = <strong>628 legisladores</strong>."},
+  {sa:"1.3",sal:"Ciudadanía",
+   ref:"CPEUM (2025), Art. 35",
+   p:null,pt:null,
+   q:"¿Cuál de los siguientes es un derecho exclusivo de los ciudadanos mexicanos conforme al Art. 35 CPEUM, y no de los nacionales en general?",
+   o:["Recibir educación pública gratuita en todos los niveles.",
+      "Votar en las elecciones populares, ser votado para cargos de elección popular y asociarse individual y libremente para participar en asuntos políticos.",
+      "Ejercer el derecho de petición ante cualquier autoridad."],
+   c:1,ex:"El Art. 35 CPEUM establece los derechos del ciudadano: votar, ser votado y asociarse políticamente. Son derechos político-electorales reservados a quienes tienen la ciudadanía (18 años y modo honesto de vivir)."},
+  {sa:"2.6",sal:"Proceso Electoral Federal",
+   ref:"LGIPE (2024), Art. 251",
+   p:null,pt:null,
+   q:"¿Cuál es el período de veda de encuestas electorales según la legislación mexicana?",
+   o:["Se prohíbe publicar encuestas durante los 3 días previos a la jornada electoral y hasta el cierre de las casillas.",
+      "Se prohíbe publicar encuestas únicamente el día de la jornada electoral.",
+      "No existe ninguna restricción legal a la publicación de encuestas en México."],
+   c:0,ex:"El Art. 251 LGIPE establece una veda de 3 días previos a la elección para la publicación de encuestas de preferencia electoral, buscando preservar la libertad del voto."},
+  {sa:"3.2",sal:"Órganos del INE",
+   ref:"LGIPE (2024), Arts. 91–100",
+   p:null,pt:null,
+   q:"¿Cuál es la diferencia funcional entre la Junta General Ejecutiva y la Secretaría Ejecutiva del INE?",
+   o:["Son el mismo órgano con distinto nombre según la función que desempeñen.",
+      "La Junta General Ejecutiva es el órgano colegiado permanente de coordinación técnico-ejecutiva; la Secretaría Ejecutiva es un cargo unipersonal cuyo titular preside la Junta y es el responsable ejecutivo de la institución.",
+      "La Secretaría Ejecutiva tiene funciones jurisdiccionales; la Junta General Ejecutiva tiene funciones administrativas."],
+   c:1,ex:"La Junta General Ejecutiva (Arts. 91–100 LGIPE) es el órgano colegiado que coordina las Direcciones Ejecutivas; la Secretaría Ejecutiva es el cargo de su titular, quien actúa como máximo responsable ejecutivo del INE."}
+];
+const SS={"1.1":{bg:"#e8eaf6",color:"#3949ab",icon:"📜"},"1.3":{bg:"#e0f2f1",color:"#00796b",icon:"🧑‍🤝‍🧑"},"2.6":{bg:"#e3f2fd",color:"#1565c0",icon:"🗓️"},"3.2":{bg:"#f3e5f5",color:"#6a1b9a",icon:"⚙️"}};
+const TIME_LIMIT=10*60;
+let Q=[],answers=[],revealed=[],current=0,timerInterval,secondsLeft;
+function startExam(){
+  Q=[...QBANK];
+  answers=new Array(Q.length).fill(null);revealed=new Array(Q.length).fill(false);current=0;
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('examScreen').classList.remove('hidden');
+  document.getElementById('navBar').classList.remove('hidden');
+  renderQuestion(0);startTimer();
+}
+function renderQuestion(idx){
+  current=idx;const q=Q[idx],sc=SS[q.sa]||{bg:"#f3e5f5",color:"#6a1b9a",icon:"📌"},isR=revealed[idx],sel=answers[idx];
+  let ph='';if(q.p)ph=`<div class="passage"><div class="passage-label">📄 ${q.pt}</div>${q.p}</div>`;
+  const L=['A','B','C'];
+  const opts=q.o.map((o,i)=>{
+    let cls='option',icon='';
+    if(isR){cls+=' disabled';if(i===q.c){cls+=' correct';icon='<div class="opt-result-icon">✅</div>';}else if(i===sel&&i!==q.c){cls+=' incorrect';icon='<div class="opt-result-icon">❌</div>';}}
+    else if(i===sel)cls+=' selected';
+    return`<div class="${cls}" onclick="sel(${idx},${i})"><div class="opt-letter-col"><div class="opt-letter">${L[i]}</div></div><div class="opt-text">${o}</div>${icon}</div>`;
+  }).join('');
+  const ri=isR?(sel===q.c?'✅ Correcto':sel===null?'⏭️ Sin responder':'❌ Incorrecto'):'';
+  window.scrollTo({top:0,behavior:'instant'});
+  document.getElementById('examScreen').innerHTML=`
+    <div class="question-card">
+      <div class="q-header" style="flex-wrap:wrap;gap:5px">
+        <div class="q-num-label">Preg. ${idx+1}/${Q.length}</div>
+        <div class="q-area-badge">${sc.icon} ${q.sal}</div>
+      </div>
+      <div class="q-body">
+        ${ph}
+        <div class="question-text">${q.q}</div>
+        <div class="options">${opts}</div>
+        <div class="biblio-ref">📚 ${q.ref}</div>
+      </div>
+      <div class="explanation ${isR?'show':''}">
+        <strong>${ri}${ri?' — ':''}Explicación:</strong> ${q.ex}
+      </div>
+    </div>
+    ${!isR&&answers[idx]!==null?`<div class="ver-sol-wrap"><button class="btn-ver-sol" onclick="rev(${idx})">Ver explicación 💡</button></div>`:''}`;
+  document.getElementById('progressBar').style.width=((idx+1)/Q.length*100)+'%';
+  document.getElementById('navCurrent').textContent=idx+1;
+  document.getElementById('navTotal').textContent=Q.length;
+  document.getElementById('btnPrev').disabled=idx===0;
+  document.getElementById('btnNext').textContent=idx===Q.length-1?'🏁 Finalizar':'Sig. →';
+}
+function sel(qi,oi){if(revealed[qi])return;answers[qi]=oi;renderQuestion(qi);}
+function rev(idx){revealed[idx]=true;renderQuestion(idx);}
+function nextQ(){if(current<Q.length-1)renderQuestion(current+1);else showResults();}
+function prevQ(){if(current>0)renderQuestion(current-1);}
+function startTimer(){
+  secondsLeft=TIME_LIMIT;
+  timerInterval=setInterval(()=>{
+    secondsLeft--;const m=Math.floor(secondsLeft/60).toString().padStart(2,'0'),s=(secondsLeft%60).toString().padStart(2,'0');
+    const el=document.getElementById('timer');el.textContent=`${m}:${s}`;
+    el.className='timer'+(secondsLeft<60?' danger':secondsLeft<180?' warning':'');
+    if(secondsLeft<=0){clearInterval(timerInterval);showResults();}
+  },1000);
+}
+function showResults(){
+  clearInterval(timerInterval);
+  document.getElementById('examScreen').classList.add('hidden');
+  document.getElementById('navBar').classList.add('hidden');
+  const total=Q.length,correct=answers.filter((a,i)=>a===Q[i].c).length,pct=Math.round(correct/total*100);
+  const cc=pct>=70?'score-good':pct>=50?'score-mid':'score-low';
+  document.getElementById('resultsScreen').innerHTML=`
+    <div class="results-screen">
+      <div style="background:#f3e5f5;border-radius:10px;padding:9px 14px;margin-bottom:18px;font-size:.82rem;color:#6a1b9a;font-weight:600">
+        📋 DEMO MÓDULO C — ${new Date().toLocaleDateString('es-MX')}
+      </div>
+      <div class="score-circle ${cc}">${pct}%<div class="score-sub">${correct}/${total}</div></div>
+      <h2 style="margin-bottom:8px">${pct>=70?'¡Buen resultado! 🎉':'Sigue practicando 💪'}</h2>
+      <p style="margin-bottom:20px;color:#777;font-size:.85rem">${correct} correctas de ${total}</p>
+      <p style="font-size:.78rem;color:#777;margin-bottom:20px">${pct>=70?'¡Superaste el 70%! El simulacro completo tiene 40 preguntas.':'El simulacro completo te ayudará a identificar los temas a reforzar.'}</p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-primary btn-lg" onclick="reviewExam()">Revisar con explicaciones</button>
+        <button class="btn btn-secondary btn-lg" onclick="location.reload()">Reiniciar demo ⚡</button>
+      </div>
+    </div>`;
+  document.getElementById('resultsScreen').classList.remove('hidden');
+  window.scrollTo(0,0);
+}
+function reviewExam(){
+  document.getElementById('resultsScreen').classList.add('hidden');
+  document.getElementById('examScreen').classList.remove('hidden');
+  document.getElementById('navBar').classList.remove('hidden');
+  revealed=revealed.map(()=>true);renderQuestion(0);window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
